@@ -44,3 +44,23 @@ group :development do
   # gem "spring"
 end
 
+
+gem "bcrypt", "~> 3.1"
+
+gem "jwt", "~> 2.10"
+
+gem "sidekiq", "~> 7.3"
+
+gem "shrine", "~> 3.6"
+
+gem "active_model_serializers", "~> 0.10.15"
+
+gem "audited", "~> 5.8"
+
+gem "byebug", "~> 11.1"
+
+gem "rack-attack", "~> 6.7"
+
+gem "versionist", "~> 2.0"
+
+gem "paranoia", "~> 3.0"

@@ -27,10 +27,10 @@ development:
   # To create additional roles in PostgreSQL see `$ createuser --help`.
   # When left blank, PostgreSQL will use the default role. This is
   # the same name as the operating system user running Rails.
-  #username: holcim_demo
+  username: postgres
 
   # The password associated with the PostgreSQL role (username).
-  #password:
+  password: root
 
   # Connect on a TCP socket. Omitted by default since the client uses a
   # domain socket that doesn't need configuration. Windows does not have
@@ -53,9 +53,9 @@ development:
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
-test:
-  <<: *default
-  database: holcim_demo_test
+# test:
+#   <<: *default
+#   database: holcim_demo_test
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -77,8 +77,8 @@ test:
 # Read https://guides.rubyonrails.org/configuring.html#configuring-a-database
 # for a full overview on how database connection configuration can be specified.
 #
-production:
-  <<: *default
-  database: holcim_demo_production
-  username: holcim_demo
-  password: <%= ENV["HOLCIM_DEMO_DATABASE_PASSWORD"] %>
+# production:
+#   <<: *default
+#   database: holcim_demo_production
+#   username: holcim_demo
+#   password: <%= ENV["HOLCIM_DEMO_DATABASE_PASSWORD"] %>

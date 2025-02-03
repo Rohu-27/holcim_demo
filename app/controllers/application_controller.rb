@@ -12,4 +12,11 @@ class ApplicationController < ActionController::API
         render json:{error: "Token Missing"},status: :unauthorized
       end
   end
+
+  def set_time_zone
+    token = request.headers[:authorization]
+    payload, _ = JwtToken.decode(token)
+    Time.zone = payload["timezone"]
+  end
+
 end

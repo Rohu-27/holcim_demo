@@ -9,7 +9,8 @@ class JwtToken
 
   def self.decode(token)
     begin
-      JWT.decode(token,SECRET_KEY, true, algorithm: 'HS256')[0]
+      token = token.split.last
+      JWT.decode(token, SECRET_KEY, true, algorithm: 'HS256')[0]
     rescue => e
       Rails.logger.error "Jwt decoded error #{e.message}"
       nil

@@ -14,6 +14,8 @@ Rails.application.routes.draw do
     resources :user
     resources :category
     resources :sub_category
+    resources :complaint
+    resources :album
   end
 
 end

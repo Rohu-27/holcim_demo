@@ -5,12 +5,16 @@ class V1::UserController<ApplicationController
    before_action :authenticate_request!, except: [:create]
 
    before_action :role_check, only: [:index]
+   before_action :set_time_zone, except: %i[create]
 
    def create
       begin
-         @user=User.create(user_params)
-         @user.save
-         render json: {data: V1::UserSerializer.new(@user), status: "SUCCESS"}, status: :created
+         @user=User.new(user_params)
+         if @user.save
+           render json: {data: V1::UserSerializer.new(@user), status: "SUCCESS"}, status: :created
+         else
+            render json: {status: "FAILURE", message: @user.errors.full_messages}, status: :unprocessable_entity
+         end
       rescue => e
          render json: {status: "FAILURE", message: e.message}, status: :unprocessable_entity
       end
@@ -53,14 +57,14 @@ class V1::UserController<ApplicationController
       end
   end
 
-  def user_params
-   params.require(:user).permit(:email,:password,:role)
-  end
-
-  def role_check
-   unless @current_user.admin?
-      render json:{message: "UnAuthorized Person to acsess the Resouce ", status:"Un Authorized"},status: :UnAuthorized 
+   def user_params
+      params.require(:user).permit(:email,:password,:role)
    end
- end
+
+   def role_check
+      unless @current_user.admin?
+         render json:{message: "Unauthorized Person to access the Resouce ", status:"Un Authorized"},status: :UnAuthorized 
+      end
+   end
  
 end

@@ -10,9 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_01_174334) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_03_072042) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "albums", force: :cascade do |t|
+    t.string "title"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "complaint_id"
+    t.index ["complaint_id"], name: "index_albums_on_complaint_id"
+  end
 
   create_table "audits", force: :cascade do |t|
     t.integer "auditable_id"
@@ -44,6 +52,26 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_01_174334) do
     t.index ["name"], name: "index_categories_on_name", unique: true
   end
 
+  create_table "complaints", force: :cascade do |t|
+    t.string "category"
+    t.string "sub_category"
+    t.string "description"
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.string "status"
+    t.index ["user_id"], name: "index_complaints_on_user_id"
+  end
+
+  create_table "photos", force: :cascade do |t|
+    t.bigint "album_id"
+    t.text "image_data"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["album_id"], name: "index_photos_on_album_id"
+  end
+
   create_table "sub_categories", force: :cascade do |t|
     t.string "name"
     t.datetime "deleted_at"
@@ -64,5 +92,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_01_174334) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "albums", "complaints"
+  add_foreign_key "complaints", "users"
+  add_foreign_key "photos", "albums"
   add_foreign_key "sub_categories", "categories"
 end

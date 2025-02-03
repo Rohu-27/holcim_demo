@@ -7,22 +7,24 @@ class V1::CategoryController < ApplicationController
   before_action :role_check, only:[:create,:update,:destroy]
 
   def create
-    begin
-      @category=Category.new(category_params)
-      @category.save
+    @category=Category.new(category_params)
+    if @category.save
       render json:{data: V1::CategorySerializer.new(@category), status:"SUCCESS"},status: :created
-    rescue => e
-      render json:{message: e.message},status: :unprocessable_entity
+    else
+      render json:{message:@status.errors.full_messages, status:"FAILED" },status: :unprocessable_entity
     end
+  rescue => e
+    render json: { message: e.message, status: "FAILED" }, status: :unprocessable_entity
   end
 
   def update
-    begin
-      @category.update(category_params)
+    if @category.update(category_params)
       render json:{data: V1::CategorySerializer.new(@category),status:"SUCCESS"},status: :ok
-    rescue => e
-      render json:{message: e.message},status: :unprocessable_entity
+    else
+      render json:{message:@status.errors.full_messages, status:"FAILED" },status: :unprocessable_entity
     end
+  rescue => e
+    render json: { message: e.message, status: "FAILED" }, status: :unprocessable_entity
 
   end
 
@@ -36,12 +38,10 @@ class V1::CategoryController < ApplicationController
   end
 
   def destroy
-    begin
       @category.destroy
       head :no_content
-    rescue =>e
-      render json:{message:e.message,status:"FAILED"},status: :unprocessable_entity  
-    end
+  rescue =>e
+    render json:{message:e.message,status:"FAILED"},status: :unprocessable_entity
   end
 
   private
@@ -51,16 +51,14 @@ class V1::CategoryController < ApplicationController
   end
   
   def set_category
-    begin
-      @category=Category.find(params[:id])
-    rescue =>e
-      render json:{message: e.message, status:"NOT FOUND"},status: :not_found 
-    end
+    @category=Category.find(params[:id])
+  rescue =>e
+    render json:{message: e.message, status:"NOT FOUND"},status: :not_found 
   end
 
   def role_check
-    unless @current_user.admi n?
-      render json:{message: "UnAuthorized Person to acsess the Resouce ", status:"Un Authorized"},status: :unauthorized 
+    unless @current_user.admin?
+      render json:{message: "Unauthorized Person to access the Resouce ", status:"UnAuthorized"},status: :unauthorized 
     end
   end
 

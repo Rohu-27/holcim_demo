@@ -14,6 +14,7 @@ Rails.application.routes.draw do
     resources :user
     resources :category
     resources :sub_category
+    resources :status
   end
 
 end

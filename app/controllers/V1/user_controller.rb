@@ -6,28 +6,48 @@ class V1::UserController<ApplicationController
 
    before_action :role_check, only: [:index]
 
+   before_action :set_time_zone
+
    def create
-      begin
-         @user=User.create(user_params)
-         @user.save
+      @user=User.new(user_params)
+      if @user.save
          render json: {data: V1::UserSerializer.new(@user), status: "SUCCESS"}, status: :created
-      rescue => e
-         render json: {status: "FAILURE", message: e.message}, status: :unprocessable_entity
+      else
+         render json:{message:@status.errors.full_messages, status:"FAILED" },status: :unprocessable_entity
       end
+   rescue => e
+       render json: { message: e.message, status: "FAILED" }, status: :unprocessable_entity
    end
 
    def update
-      begin
-         @user.update(user_params)
+      if @user.update(user_params)
          render json: {data: V1::UserSerializer.new(@user),status: "SUCCESS"},status: :ok
-      rescue => e
-         render json: {status: "FAILURE", message: e.message}, status: :unprocessable_entity
+      else
+         render json:{message:@status.errors.full_messages, status:"FAILED" },status: :unprocessable_entity
       end
+   rescue => e
+       render json: { message: e.message, status: "FAILED" }, status: :unprocessable_entity
    end
 
    def index
       @users=User.order(:id)
-      render json: @users, each_serializer: V1::UserSerializer ,meta:{status:"SUCCESS"} ,status: :ok
+      # render json: @users, each_serializer: V1::UserSerializer ,meta:{status:"SUCCESS"} ,status: :ok
+      page=params[:page].to_i
+      page=1 if page < 1
+      per_page=params[:per_page].to_i
+      per_page= 10 if per_page < 1
+      offset=(page-1)*per_page
+      if params[:email].present?
+         @users=@users.where('email LIKE ?',"%#{params[:email]}%") 
+      end
+      if params[:date].present?
+         @users=@users.where('created_at::text LIKE ?',"%#{params[:date]}%") 
+      end
+      @users=@users.limit(per_page).offset(offset)
+
+      @totalUsers= User.count.to_i
+
+      render json:@users, each_serializer: V1::UserSerializer, meta:{status:"SUCCESS",totalUsers:@totalUsers,current_page:page},status: :ok
    end
 
    def show
@@ -35,22 +55,18 @@ class V1::UserController<ApplicationController
    end
 
    def destroy
-      begin 
-         @user.destroy
-         head :no_content 
-      rescue =>e
-         render json:{message: e.message,status:"FAILURE"},status: :unprocessable_entity
-      end
+      @user.destroy
+      head :no_content 
+   rescue =>e
+      render json:{message: e.message,status:"FAILED"},status: :unprocessable_entity
    end
 
   private
 
   def set_user
-      begin
-         @user=User.find(params[:id])
-      rescue ActiveRecord::RecordNotFound
-         render json:{error: "User Not Found", status: "NOT FOUND"},status: :not_found
-      end
+      @user=User.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+      render json:{error: "User Not Found", status: "NOT FOUND"},status: :not_found
   end
 
   def user_params
@@ -58,9 +74,13 @@ class V1::UserController<ApplicationController
   end
 
   def role_check
-   unless @current_user.admin?
-      render json:{message: "UnAuthorized Person to acsess the Resouce ", status:"Un Authorized"},status: :UnAuthorized 
-   end
- end
- 
+      unless @current_user.admin?
+         render json:{message: "UnAuthorized Person to acsess the Resouce ", status:"UnAuthorized"},status: :UnAuthorized 
+      end
+  end
+
+  def set_time_zone
+      Time.zone= request.headers['timezone'] || 'UTC'
+  end
+
 end

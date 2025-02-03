@@ -9,25 +9,24 @@ class V1::SubCategoryController < ApplicationController
   before_action :role_check, only:[:create,:update,:destroy]
 
   def create
-    begin
-      @sub_category=@category.sub_categories.build(sub_category_params)
-      if @sub_category.save
-        render json: {data: V1::SubCategorySerializer.new(@sub_category),status:"SUCCESS"},status: :created
-      else
-        render json: { message: @sub_category.errors.full_messages.join(", "), status: "FAILED" }, status: :unprocessable_entity
-      end
-    rescue => e
-      render json:{message:e.message,status:"FAILED"},status: :unprocessable_entity
+    @sub_category=@category.sub_categories.build(sub_category_params)
+    if @sub_category.save
+      render json: {data: V1::SubCategorySerializer.new(@sub_category),status:"SUCCESS"},status: :created
+    else
+      render json: { message: @sub_category.errors.full_messages.join(", "), status: "FAILED" }, status: :unprocessable_entity
     end
+  rescue => e
+      render json:{message:e.message,status:"FAILED"},status: :unprocessable_entity
   end
 
   def update
-    begin
-      @sub_category.update(sub_category_params)
+    if @sub_category.update(sub_category_params)
       render json:{data: V1::SubCategorySerializer.new(@sub_category),status:"SUCCESS"},status: :ok
-    rescue => e
-      render json:{message: e.message},status: :unprocessable_entity
+    else
+      render json: { message: @sub_category.errors.full_messages.join(", "), status: "FAILED" }, status: :unprocessable_entity
     end
+  rescue => e
+    render json:{message:e.message,status:"FAILED"},status: :unprocessable_entity
   end
 
   def index
@@ -40,12 +39,10 @@ class V1::SubCategoryController < ApplicationController
   end
 
   def destroy
-    begin
       @sub_category.destroy
       head :no_content
-    rescue =>e
-      render json:{message:e.message,status:"FAILED"},status: :unprocessable_entity  
-    end
+  rescue =>e
+    render json:{message:e.message,status:"FAILED"},status: :unprocessable_entity  
   end
 
   private
@@ -55,24 +52,20 @@ class V1::SubCategoryController < ApplicationController
   end
 
   def set_category
-    begin
-      @category=Category.find(params[:category_id])
-    rescue => e
-      render json:{message:e.message, status:"Category Not Found"},status: :ok
-    end
+    @category=Category.find(params[:category_id])
+  rescue => e
+    render json:{message:e.message, status:"Category Not Found"},status: :not_found
   end
 
   def set_sub_category
-    begin
       @sub_category=SubCategory.find(params[:id])
-    rescue =>e
-      render json:{message: e.message, status:"NOT FOUND"},status: :not_found 
-    end
+  rescue =>e
+    render json:{message: e.message, status:"NOT FOUND"},status: :not_found 
   end
 
   def role_check
     unless @current_user.admin?
-      render json:{message: "UnAuthorized Person to acsess the Resouce ", status:"Un Authorized"},status: :unauthorized 
+      render json:{message: "Unauthorized Person to acsess the Resouce ", status:"Un Authorized"},status: :unauthorized 
     end
   end
 

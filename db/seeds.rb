@@ -7,3 +7,30 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+#   
+#
+
+
+statuses=["New","Resolved","Processing"]
+
+statuses.each do |status_name|
+    Status.find_or_create_by!(name:status_name)
+end
+
+
+categories_with_subcategories = {
+  "Delivery" => ["Incorrect Product", "Quality"],
+  "Order Product" => ["Missing Item", "Wrong Size"],
+  "Service" => ["Poor Customer Service", "Delayed Service"],
+  "Accounts" => ["Billing Issue", "Payment Failure"]
+}
+
+categories_with_subcategories.each do |category_name,sub_category_names|
+    category=Category.find_or_create_by!(name: category_name)
+
+    sub_category_names.each do |sub_category_name|
+        category.sub_categories.find_or_create_by!(name: sub_category_name)
+    end
+end
+
+puts "Categories and subcategories seeded successfully!"

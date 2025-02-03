@@ -1,6 +1,5 @@
 class JwtToken
-  # SECRET_KEY = Rails.application.secrets.secret_key_base
-  SECRET_KEY="415cd440e9272ccd76ac374e2b102f8cae5fafdaf1599f49207668aac05478e331a45e1cc80acc789e675aa50257f96344c05dde0d6031083b755fcbfdabeeaf"
+  SECRET_KEY=Rails.application.secret_key_base
 
   def self.encode(payload,exp=2.hours.from_now)
     payload[:exp]=exp.to_i

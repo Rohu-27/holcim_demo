@@ -16,6 +16,7 @@ Rails.application.routes.draw do
     resources :sub_category
     resources :complaint
     resources :album
+    resources :status
   end
 
 end

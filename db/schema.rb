@@ -89,6 +89,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_03_072042) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "deleted_at"
+    t.string "timezone"
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 

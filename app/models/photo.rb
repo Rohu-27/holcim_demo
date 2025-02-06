@@ -1,3 +1,3 @@
 class Photo < ActiveRecord::Base
-  include ImageUploader::Attachment(:image)
+  include MyUploader::Attachment(:image)
 end

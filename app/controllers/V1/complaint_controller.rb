@@ -9,20 +9,27 @@ class V1::ComplaintController < ApplicationController
         render json: {data: "Can't have more than 5 attachments", status: "FAILURE"}, status: :unprocessable_entity
         return
       end
-      complaint = @current_user.complaint.new(complaints_param)
-      complaint.status = 'New'
-      if complaint.save
-        if params[:album].present?
-          album = complaint.create_album(albums_param)
-          if params[:photos].present?
-            params[:photos].map do |photo|
-              album.photos.create(image: MyUploader.upload(photo, :store))
+      ActiveRecord::Base.transaction do
+        complaint = @current_user.complaint.new(complaints_param)
+        complaint.status = 'New'
+        if complaint.save
+          if params[:album].present?
+            album = complaint.create_album(albums_param)
+            if params[:photos].present?
+              params[:photos].map do |photo|
+                uploaded_photo = MyUploader.upload(photo, :store)
+                photo = album.photos.create(image: uploaded_photo)
+                unless photo.persisted?
+                  render json: {errors: photo.errors.full_messages, status: 'FAILURE'}, status: :unprocessable_entity
+                  raise ActiveRecord::Rollback, "Error creating photo, #{photo.errors.full_messages.join(', ')}"
+                end
+              end
             end
           end
+          render json: {data: V1::ComplaintSerializer.new(complaint, {context:{action:'create'}}), status: 'SUCCESS'}, status: :created
+        else
+          render json: {errors: complaint.errors.full_messages, status: 'FAILURE'}, status: :unprocessable_entity
         end
-        render json: {data: V1::ComplaintSerializer.new(complaint, {context:{action:'create'}}), status: 'SUCCESS'}, status: :created
-      else
-        render json: {errors: complaint.errors.full_messages, status: 'FAILURE'}, status: :unprocessable_entity
       end
     rescue => e
       render json: {message: e.message, status: 'FAILURE'}, status: :unprocessable_entity
@@ -30,7 +37,7 @@ class V1::ComplaintController < ApplicationController
   end
 
   def index
-    page = request.headers[:page].present? ? request.headers[:page].to_i : 1
+    page = params[:page].present? ? params[:page].to_i : 1
     per_page = 8
     complaints = fetch_complaints(@current_user.role, page, per_page)
     if complaints.empty?
@@ -76,14 +83,16 @@ class V1::ComplaintController < ApplicationController
   end
 
   def fetch_complaints(role, page, per_page)
-    complaints = Complaint.all
+    type = params[:type]
+    complaints = type == 'All' ? Complaint.all : Complaint.where("ticket_number LIKE ?", "%#{type}%")
     if role == 'user'
       complaints = complaints.where(user_id: @current_user.id)
     end
-    status = request.headers[:status]
-    time = request.headers[:time]
+    status = params[:status]
+    from = params[:from]
+    to = params[:to]
     complaints = complaints.where(status: status) if status.present?
-    complaints = complaints.where("created_at::text LIKE ?",  "%#{time}%") if time.present?
+    complaints = complaints.where("created_at::text BETWEEN ? AND ?",  "#{from}", "#{to}") if from.present? and to.present?
     complaints
   end
 

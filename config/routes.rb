@@ -14,7 +14,7 @@ Rails.application.routes.draw do
     resources :user
     resources :category
     resources :sub_category
-    resources :complaint
+    resources :customer_ticket
     resources :album
     resources :status
   end

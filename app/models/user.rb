@@ -3,7 +3,7 @@ class User < ApplicationRecord
   audited
   acts_as_paranoid
   has_secure_password
-  has_many :CustomerTicket, dependent: :destroy
+  has_many :customer_tickets, dependent: :destroy
 
   validates :email, presence: true
 

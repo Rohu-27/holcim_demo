@@ -1,4 +1,4 @@
-class Complaint < ApplicationRecord
+class CustomerTicket < ApplicationRecord
   audited
   acts_as_paranoid
   has_one :album, dependent: :destroy

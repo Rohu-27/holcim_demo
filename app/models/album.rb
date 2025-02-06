@@ -1,5 +1,5 @@
 class Album < ActiveRecord::Base
-  belongs_to :complaint
+  belongs_to :CustomerTicket
   has_many :photos, dependent: :destroy
   accepts_nested_attributes_for :photos, allow_destroy: true
 

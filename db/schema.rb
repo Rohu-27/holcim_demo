@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_03_091615) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_06_050027) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -18,8 +18,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_03_091615) do
     t.string "title"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "complaint_id"
-    t.index ["complaint_id"], name: "index_albums_on_complaint_id"
+    t.bigint "customer_ticket_id"
+    t.index ["customer_ticket_id"], name: "index_albums_on_customer_ticket_id"
   end
 
   create_table "audits", force: :cascade do |t|
@@ -52,7 +52,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_03_091615) do
     t.index ["name"], name: "index_categories_on_name", unique: true
   end
 
-  create_table "complaints", force: :cascade do |t|
+  create_table "customer_tickets", force: :cascade do |t|
     t.string "category"
     t.string "sub_category"
     t.string "description"
@@ -61,7 +61,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_03_091615) do
     t.datetime "updated_at", null: false
     t.bigint "user_id"
     t.string "status"
-    t.index ["user_id"], name: "index_complaints_on_user_id"
+    t.string "ticket_number"
+    t.string "comment"
+    t.index ["user_id"], name: "index_customer_tickets_on_user_id"
   end
 
   create_table "photos", force: :cascade do |t|
@@ -99,8 +101,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_03_091615) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
-  add_foreign_key "albums", "complaints"
-  add_foreign_key "complaints", "users"
+  add_foreign_key "albums", "customer_tickets"
+  add_foreign_key "customer_tickets", "users"
   add_foreign_key "photos", "albums"
   add_foreign_key "sub_categories", "categories"
 end

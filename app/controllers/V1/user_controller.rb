@@ -50,7 +50,9 @@ class V1::UserController<ApplicationController
 
       @totalUsers= User.count.to_i
 
-      render json:@users, each_serializer: V1::UserSerializer, meta:{status:"SUCCESS",totalUsers:@totalUsers,current_page:page},status: :ok
+      serialized_users= @users.map{ |user| V1::UserSerializer.new(user,{content:{action:"index"}}) }
+
+      render json:{data: serialized_users, meta:{status:"SUCCESS",totalUsers:@totalUsers,current_page:page}},status: :ok
    end
 
    def show
@@ -78,7 +80,7 @@ class V1::UserController<ApplicationController
 
    def role_check
       unless @current_user.admin?
-         render json:{message: "Unauthorized Person to access the Resouce ", status:"Un Authorized"},status: :UnAuthorized 
+         render json:{message: "Unauthorized Person to access the Resouce ", status:"Un Authorized"},status: :unauthorized 
       end
    end
  

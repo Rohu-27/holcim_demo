@@ -11,7 +11,7 @@ class V1::StatusController < ApplicationController
       render json:{message:@status.errors.full_messages, status:"FAILED" },status: :unprocessable_entity
     end
   rescue => e
-    render json: { message: e.message, status: "FAILURE" }, status: :unprocessable_entity
+    render json: { message: e.message, status: "FAILED" }, status: :unprocessable_entity
   end
 
   def update
@@ -21,7 +21,7 @@ class V1::StatusController < ApplicationController
       render json:{message:@status.errors.full_messages, status:"FAILED" },status: :unprocessable_entity
     end
   rescue => e
-    render json: { message: e.message, status: "FAILURE" }, status: :unprocessable_entity
+    render json: { message: e.message, status: "FAILED" }, status: :unprocessable_entity
   end
 
   def show
@@ -37,7 +37,7 @@ class V1::StatusController < ApplicationController
     @status.destroy
     head :no_content
   rescue=>e
-    render json:{message: e.message,status:"FAILURE"},status: :unprocessable_entity
+    render json:{message: e.message,status:"FAILED"},status: :unprocessable_entity
   end
 
   private

@@ -31,7 +31,11 @@ class V1::SubCategoryController < ApplicationController
 
   def index
     @sub_categories=@category.sub_categories.order(:id)
-    render json:@sub_categories, each_serializer: V1::SubCategorySerializer,meta:{status:"SUCCESS"},status: :ok
+    if @sub_categories.empty?
+        render json:{status:"SUCCESS", message:"there is no sub categories for this catgory id = #{:id}"}
+    end
+    sub_category_serializer=@sub_categories.map {|sub_categorie| V1::SubCategorySerializer.new(sub_categorie)}
+    render json:{ data: sub_category_serializer, status:"SUCCESS" },status: :ok
   end
 
   def show

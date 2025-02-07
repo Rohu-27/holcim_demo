@@ -31,7 +31,12 @@ class V1::CategoryController < ApplicationController
   def index
     @categories=Category.order(:id)
     @categories = @categories.where(ticket_type: params[:type])
-    render json: @categories, each_serializer: V1::CategorySerializer, meta:{status:"SUCCESS"},status: :ok
+    if @categories.empty?
+      render json: {status: 'SUCCESS', message: "There are no categories"}, status: :ok
+      return
+    end
+    categories_serializer=@categories.map { |category| V1::CategorySerializer.new(category) }
+    render json:{ data: categories_serializer, status:"SUCCESS"},status: :ok
   end
 
   def show

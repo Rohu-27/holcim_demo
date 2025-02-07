@@ -18,15 +18,33 @@ statuses.each do |status_name|
 end
 
 
-categories_with_subcategories = {
-  "Delivery" => ["Incorrect Product", "Quality"],
-  "Order Product" => ["Missing Item", "Wrong Size"],
-  "Service" => ["Poor Customer Service", "Delayed Service"],
-  "Accounts" => ["Billing Issue", "Payment Failure"]
+complaint_categories_with_subcategories = {
+  "Delivery Issues" => ["Incorrect Product Received", "Poor Product Quality"],
+  "Product Order Problems" => ["Missing Items in Order", "Wrong Size Delivered"],
+  "Customer Service Issues" => ["Unhelpful Support", "Delayed Service Response"],
+  "Account Billing Problems" => ["Incorrect Billing", "Failed Payment Processing"]
 }
 
-categories_with_subcategories.each do |category_name,sub_category_names|
-    category=Category.find_or_create_by!(name: category_name)
+
+complaint_categories_with_subcategories.each do |category_name,sub_category_names|
+    category=Category.find_or_create_by!(name: category_name, ticket_type: "CM")
+
+    sub_category_names.each do |sub_category_name|
+        category.sub_categories.find_or_create_by!(name: sub_category_name)
+    end
+end
+
+
+request_categories_with_subcategories = {
+  "Delivery Requests" => ["Change Delivery Address", "Add Special Instructions"],
+  "Product Order Requests" => ["Cancel Order", "Modify Order Details"],
+  "Service Requests" => ["Upgrade Service Plan", "Request Service Information"],
+  "Account Requests" => ["Request Invoice Copy", "Update Account Information"]
+}
+
+
+request_categories_with_subcategories.each do |category_name,sub_category_names|
+    category=Category.find_or_create_by!(name: category_name, ticket_type: "RQ")
 
     sub_category_names.each do |sub_category_name|
         category.sub_categories.find_or_create_by!(name: sub_category_name)

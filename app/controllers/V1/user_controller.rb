@@ -34,25 +34,21 @@ class V1::UserController<ApplicationController
 
    def index
       @users=User.order(:id)
-      # render json: @users, each_serializer: V1::UserSerializer ,meta:{status:"SUCCESS"} ,status: :ok
+      if @users.empty?
+         render json:{status:"SUCCESS",message:"there is no users"},status: :ok
+         return
+      end
       page=params[:page].to_i
       page=1 if page < 1
       per_page=params[:per_page].to_i
       per_page= 10 if per_page < 1
       offset=(page-1)*per_page
-      if params[:email].present?
-         @users=@users.where('email LIKE ?',"%#{params[:email]}%") 
-      end
-      if params[:date].present?
-         @users=@users.where('created_at::text LIKE ?',"%#{params[:date]}%") 
-      end
       @users=@users.limit(per_page).offset(offset)
+      totalUsers= User.count.to_i
 
-      @totalUsers= User.count.to_i
+      serialized_users= @users.map{ |user| V1::UserSerializer.new(user) }
 
-      serialized_users= @users.map{ |user| V1::UserSerializer.new(user,{content:{action:"index"}}) }
-
-      render json:{data: serialized_users, meta:{status:"SUCCESS",totalUsers:@totalUsers,current_page:page}},status: :ok
+      render json:{data: serialized_users, meta:{status:"SUCCESS",totalUsers:totalUsers,current_page:page}},status: :ok
    end
 
    def show

@@ -101,7 +101,7 @@ class V1::CustomerTicketController < ApplicationController
     from = params[:from]
     to = params[:to]
     customer_tickets = customer_tickets.where(status: status) if status.present?
-    customer_tickets = customer_tickets.where("created_at::text BETWEEN ? AND ?",  "#{from}", "#{to}") if from.present? and to.present?
+    customer_tickets = customer_tickets.where("created_at::text BETWEEN ? AND ?",  "#{from}", "#{(Date.parse(to).next_day).to_s}") if from.present? and to.present?
     customer_tickets
   end
 

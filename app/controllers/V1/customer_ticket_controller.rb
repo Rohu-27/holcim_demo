@@ -77,6 +77,15 @@ class V1::CustomerTicketController < ApplicationController
     end
   end
 
+  def search
+    customer_ticket = CustomerTicket.find_by(ticket_number: params[:ticket_number].squish)
+    if customer_ticket.nil?
+      render json: {message: "No complaint exists for the given id", status: 'FAILURE'}, status: :unprocessable_entity
+      return
+    end
+    render json: {status: "SUCCESS", data: V1::CustomerTicketSerializer.new(customer_ticket, {context:{action:'search'}})}, status: :ok
+  end
+
   private
 
   def customer_tickets_param

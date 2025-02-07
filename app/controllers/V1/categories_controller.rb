@@ -1,4 +1,4 @@
-class V1::CategoryController < ApplicationController
+class V1::CategoriesController < ApplicationController
 
   before_action :set_category, only:[:show, :update, :destroy]
 

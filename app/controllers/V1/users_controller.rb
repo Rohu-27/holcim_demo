@@ -1,4 +1,4 @@
-class V1::UserController<ApplicationController
+class V1::UsersController < ApplicationController
 
    before_action :set_user, only: [:show,:destroy,:update]
 
@@ -67,7 +67,7 @@ class V1::UserController<ApplicationController
   def set_user
       @user=User.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-      render json:{error: "User Not Found", status: "NOT FOUND"},status: :not_found
+      render json:{error: "User Not Found", status: "FAILED"},status: :not_found
   end
 
    def user_params
@@ -76,7 +76,7 @@ class V1::UserController<ApplicationController
 
    def role_check
       unless @current_user.admin?
-         render json:{message: "Unauthorized Person to access the Resouce ", status:"Un Authorized"},status: :unauthorized 
+         render json:{message: "You don't have necessary permissions", status:"FAILED"},status: :forbidden 
       end
    end
  

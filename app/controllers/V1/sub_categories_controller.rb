@@ -1,4 +1,4 @@
-class V1::SubCategoryController < ApplicationController
+class V1::SubCategoriesController < ApplicationController
 
   before_action :set_category, only: [:create, :index]
 

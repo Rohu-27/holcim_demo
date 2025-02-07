@@ -1,4 +1,4 @@
-class V1::CustomerTicketController < ApplicationController
+class V1::CustomerTicketsController < ApplicationController
   before_action :authenticate_request!
   before_action :set_time_zone
   before_action :get_customer_ticket, only: %i[show update]

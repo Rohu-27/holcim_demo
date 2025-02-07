@@ -11,11 +11,11 @@ Rails.application.routes.draw do
   # root "posts#index"
   
   api_version(:module => "V1", :path => {:value => "api/v1"}) do
-    resources :user
-    resources :category
-    resources :sub_category
-    get "customer_ticket/search", to: "customer_ticket#search"
-    resources :customer_ticket
+    resources :users
+    resources :categories
+    resources :sub_categories
+    get "customer_tickets/search", to: "customer_tickets#search"
+    resources :customer_tickets
     resources :album
     resources :status
   end

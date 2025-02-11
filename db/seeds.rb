@@ -11,54 +11,42 @@
 #
 
 
-# statuses=["New","Resolved","Processing"]
+statuses=["New","Resolved","Processing"]
 
-# statuses.each do |status_name|
-#     Status.find_or_create_by!(name:status_name)
-# end
-
-
-# complaint_categories_with_subcategories = {
-#   "Delivery Issues" => ["Incorrect Product Received", "Poor Product Quality"],
-#   "Product Order Problems" => ["Missing Items in Order", "Wrong Size Delivered"],
-#   "Customer Service Issues" => ["Unhelpful Support", "Delayed Service Response"],
-#   "Account Billing Problems" => ["Incorrect Billing", "Failed Payment Processing"]
-# }
-
-
-# complaint_categories_with_subcategories.each do |category_name,sub_category_names|
-#     category=Category.find_or_create_by!(name: category_name, ticket_type: "CM")
-
-#     sub_category_names.each do |sub_category_name|
-#         category.sub_categories.find_or_create_by!(name: sub_category_name)
-#     end
-# end
-
-
-# request_categories_with_subcategories = {
-#   "Delivery Requests" => ["Change Delivery Address", "Add Special Instructions"],
-#   "Product Order Requests" => ["Cancel Order", "Modify Order Details"],
-#   "Service Requests" => ["Upgrade Service Plan", "Request Service Information"],
-#   "Account Requests" => ["Request Invoice Copy", "Update Account Information"]
-# }
-
-
-# request_categories_with_subcategories.each do |category_name,sub_category_names|
-#     category=Category.find_or_create_by!(name: category_name, ticket_type: "RQ")
-
-#     sub_category_names.each do |sub_category_name|
-#         category.sub_categories.find_or_create_by!(name: sub_category_name)
-#     end
-# end
-
-# puts "Categories and subcategories seeded successfully!"
-
-categories = Category.all
-categories.each do |category|
-    category.update(parent_id: 0)  
+statuses.each do |status_name|
+    Status.find_or_create_by!(name:status_name)
 end
 
-sub_categories = SubCategory.all
-sub_categories.each do |sub|
-    Category.find_or_create_by(name: sub.name, parent_id: sub.category_id)  
+
+# request Categories with subcategories
+request_categories_with_subcategories = {
+  "Delivery Requests" => ["Change Delivery Address", "Add Special Instructions"],
+  "Product Order Requests" => ["Cancel Order", "Modify Order Details"],
+  "Service Requests" => ["Upgrade Service Plan", "Request Service Information"],
+  "Account Requests" => ["Request Invoice Copy", "Update Account Information"]
+}
+
+request_categories_with_subcategories.each do |category_name, sub_category_names|
+  parent_category = Category.find_or_create_by!(name: category_name, ticket_type: "RQ", parent_id: nil)
+  sub_category_names.each do |sub_category_name|
+    Category.find_or_create_by!(name: sub_category_name, parent_id: parent_category.id)
+  end
 end
+
+
+# Complaint Categories with subcategories
+complaint_categories_with_subcategories = {
+  "Delivery Issues" => ["Incorrect Product Received", "Poor Product Quality"],
+  "Product Order Problems" => ["Missing Items in Order", "Wrong Size Delivered"],
+  "Customer Service Issues" => ["Unhelpful Support", "Delayed Service Response"],
+  "Account Billing Problems" => ["Incorrect Billing", "Failed Payment Processing"]
+}
+
+complaint_categories_with_subcategories.each do |category_name, sub_category_names|
+  parent_category = Category.find_or_create_by!(name: category_name, ticket_type: "CM", parent_id: nil)
+  sub_category_names.each do |sub_category_name|
+    Category.find_or_create_by!(name: sub_category_name, parent_id: parent_category.id)
+  end
+end
+
+puts "Categories and subcategories seeded successfully!"

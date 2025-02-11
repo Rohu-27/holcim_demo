@@ -7,9 +7,17 @@ class V1::CategoriesController < ApplicationController
   before_action :role_check, only:[:create,:update,:destroy]
 
   def create
-    @category=Category.new(category_params)
-    if @category.save
-      render json:{data: V1::CategorySerializer.new(@category), status:"SUCCESS"},status: :created
+    if (params[:parent_id].present? && params[:ticket_type].present?) || (params[:parent_id].nil? && params[:ticket_type].nil?)
+      render json:{message:"Please provide either parent_id or type", status:"FAILED"},status: :unprocessable_entity
+      return
+    end
+    if params[:parent_id].nil? && (params[:ticket_type].nil? || !["CM","RQ"].include?(params[:ticket_type]))
+      render json: { message: "Invalid type. It must be 'CM' or 'RQ'.", status: "FAILED" }, status: :unprocessable_entity
+      return
+    end
+    category=Category.new(category_params)
+    if category.save
+      render json:{data: V1::CategorySerializer.new(category), status:"SUCCESS"},status: :created
     else
       render json:{message:@status.errors.full_messages, status:"FAILED" },status: :unprocessable_entity
     end
@@ -18,26 +26,28 @@ class V1::CategoriesController < ApplicationController
   end
 
   def update
-    if @category.update(category_params)
+    if @category.update(category_update_params)
       render json:{data: V1::CategorySerializer.new(@category),status:"SUCCESS"},status: :ok
     else
       render json:{message:@status.errors.full_messages, status:"FAILED" },status: :unprocessable_entity
     end
   rescue => e
     render json: { message: e.message, status: "FAILED" }, status: :unprocessable_entity
-
   end
 
   def index
-    @categories=Category.order(:id)
-    @categories = @categories.where(ticket_type: params[:type]) if params[:type].present?
-    parent_id = params[:parent_id].present? ? params[:parent_id] : 0 
-    @categories = @categories.where(parent_id: parent_id)
-    if @categories.empty?
+    if (params[:parent_id].present? && params[:ticket_type].present?) || (params[:parent_id].nil? && params[:ticket_type].nil?)
+      render json:{message:"Please provide either parent_id or type", status:"FAILED"},status: :unprocessable_entity
+      return
+    end
+    categories=Category.order(:id)
+    categories = categories.where(ticket_type: params[:ticket_type]) if params[:type].present?
+    categories = categories.where(parent_id: params[:parent_id]) if params[:parent_id].present?
+    if categories.empty?
       render json: {status: 'SUCCESS', message: "There are no categories"}, status: :ok
       return
     end
-    categories_serializer=@categories.map { |category| V1::CategorySerializer.new(category) }
+    categories_serializer=categories.map { |category| V1::CategorySerializer.new(category) }
     render json:{ data: categories_serializer, status:"SUCCESS"},status: :ok
   end
 
@@ -46,6 +56,10 @@ class V1::CategoriesController < ApplicationController
   end
 
   def destroy
+      sub_categories=Category.where(parent_id: params[:id])
+      sub_categories.each do |sub_category|
+        sub_category.destroy
+      end
       @category.destroy
       head :no_content
   rescue =>e
@@ -55,7 +69,11 @@ class V1::CategoriesController < ApplicationController
   private
 
   def category_params
-    params.require(:category).permit(:name, sub_categories_attributes:[:id, :name, :_destroy] )
+    params.permit(:name, :ticket_type, :parent_id)
+  end
+
+  def category_update_params
+    params.permit(:name)
   end
   
   def set_category

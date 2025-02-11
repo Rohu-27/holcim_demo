@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_10_172210) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_11_061826) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -84,16 +84,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_10_172210) do
     t.index ["name"], name: "index_statuses_on_name", unique: true
   end
 
-  create_table "sub_categories", force: :cascade do |t|
-    t.string "name"
-    t.datetime "deleted_at"
-    t.bigint "category_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["category_id"], name: "index_sub_categories_on_category_id"
-    t.index ["name"], name: "index_sub_categories_on_name", unique: true
-  end
-
   create_table "users", force: :cascade do |t|
     t.string "email"
     t.string "password_digest"
@@ -107,5 +97,4 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_10_172210) do
   add_foreign_key "albums", "customer_tickets"
   add_foreign_key "customer_tickets", "users"
   add_foreign_key "photos", "albums"
-  add_foreign_key "sub_categories", "categories"
 end

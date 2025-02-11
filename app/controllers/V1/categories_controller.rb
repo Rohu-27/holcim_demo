@@ -30,7 +30,9 @@ class V1::CategoriesController < ApplicationController
 
   def index
     @categories=Category.order(:id)
-    @categories = @categories.where(ticket_type: params[:type])
+    @categories = @categories.where(ticket_type: params[:type]) if params[:type].present?
+    parent_id = params[:parent_id].present? ? params[:parent_id] : 0 
+    @categories = @categories.where(parent_id: parent_id)
     if @categories.empty?
       render json: {status: 'SUCCESS', message: "There are no categories"}, status: :ok
       return

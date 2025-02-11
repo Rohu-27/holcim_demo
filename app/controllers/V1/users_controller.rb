@@ -5,7 +5,6 @@ class V1::UsersController < ApplicationController
    before_action :authenticate_request!, except: [:create]
 
    before_action :role_check, only: [:index]
-   before_action :set_time_zone, except: %i[create]
 
    def create
       begin

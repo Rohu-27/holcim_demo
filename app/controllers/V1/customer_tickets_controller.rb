@@ -106,13 +106,12 @@ class V1::CustomerTicketsController < ApplicationController
       customer_tickets = customer_tickets.where(user_id: @current_user.id)
     end
     status = params[:status]
+    customer_tickets = customer_tickets.where(status: status) if status.present?
     from = params[:from]
     to = params[:to]
     if from.present? and to.present?
-      time_zone = params['timezone'] || 'UTC'
-      from_date = Date.parse(from).in_time_zone(time_zone).beginning_of_day
-      to_date = Date.parse(to).in_time_zone(time_zone).end_of_day
-      customer_tickets = customer_tickets.where(status: status) if status.present?
+      from_date = Time.parse(from)
+      to_date = Time.parse(to)
       customer_tickets = customer_tickets.where("created_at BETWEEN ? AND ?", from_date, to_date)
     end
     customer_tickets

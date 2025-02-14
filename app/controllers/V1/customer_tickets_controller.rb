@@ -24,7 +24,13 @@ class V1::CustomerTicketsController < ApplicationController
           album = customer_ticket.create_album(albums_param)
           if params[:photos].present?
             params[:photos].map do |photo|
-              uploaded_photo = MyUploader.upload(photo, :store)
+              resized_photo = Rszr::Image.load(photo.path)
+              resized_photo.resize!(400, 300)
+              file_extension = File.extname(photo.original_filename) || 'png'
+              tmp_file = Tempfile.new([File.basename(photo.original_filename, file_extension), file_extension])
+              resized_photo.save(tmp_file.path)
+              tmp_file.rewind
+              uploaded_photo = MyUploader.upload(tmp_file, :store)
               photo = album.photos.create(image: uploaded_photo)
               unless photo.persisted?
                 render json: {errors: photo.errors.full_messages, status: 'FAILURE'}, status: :unprocessable_entity

@@ -64,3 +64,5 @@ gem "rack-attack", "~> 6.7"
 gem "versionist", "~> 2.0"
 
 gem "paranoia", "~> 3.0"
+
+gem 'rszr'

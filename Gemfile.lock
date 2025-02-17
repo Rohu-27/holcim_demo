@@ -260,7 +260,7 @@ DEPENDENCIES
   puma (>= 5.0)
   rack-attack (~> 6.7)
   rails (~> 7.2)
-  rszr
+  rszr (~> 1.5)
   shrine (~> 3.6)
   sidekiq (~> 7.3)
   tzinfo-data

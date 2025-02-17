@@ -65,4 +65,4 @@ gem "versionist", "~> 2.0"
 
 gem "paranoia", "~> 3.0"
 
-gem 'rszr'
+gem "rszr", "~> 1.5"

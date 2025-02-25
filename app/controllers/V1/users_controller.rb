@@ -43,11 +43,11 @@ class V1::UsersController < ApplicationController
       per_page= 10 if per_page < 1
       offset=(page-1)*per_page
       @users=@users.limit(per_page).offset(offset)
-      totalUsers= User.count.to_i
+      total_users= User.count.to_i
 
       serialized_users= @users.map{ |user| V1::UserSerializer.new(user) }
 
-      render json:{data: serialized_users, meta:{status:"SUCCESS",totalUsers:totalUsers,current_page:page}},status: :ok
+      render json:{data: serialized_users, meta:{status:"SUCCESS",total_users:total_users,current_page:page}},status: :ok
    end
 
    def show

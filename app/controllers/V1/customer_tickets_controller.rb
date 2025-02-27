@@ -24,17 +24,15 @@ class V1::CustomerTicketsController < ApplicationController
           album = customer_ticket.create_album(albums_param)
           if params[:photos].present?
             params[:photos].map do |photo|
-              resized_photo = Rszr::Image.load(photo.path)
-              resized_photo.resize!(400, 300)
-              file_extension = File.extname(photo.original_filename) || 'png'
-              tmp_file = Tempfile.new([File.basename(photo.original_filename, file_extension), file_extension])
-              resized_photo.save(tmp_file.path)
-              tmp_file.rewind
-              uploaded_photo = MyUploader.upload(tmp_file, :store)
-              photo = album.photos.create(image: uploaded_photo)
-              unless photo.persisted?
-                render json: {errors: photo.errors.full_messages, status: 'FAILURE'}, status: :unprocessable_entity
-                raise ActiveRecord::Rollback, "Error creating photo, #{photo.errors.full_messages.join(', ')}"
+              resized_photo = ImageProcessing::MiniMagick
+                        .source(photo.path)
+                        .resize_to_fit(900, 900)
+                        .call
+              uploaded_photo = MyUploader.upload(resized_photo, :store)
+              photo_record = album.photos.create(image: uploaded_photo)
+              unless photo_record.persisted?
+                render json: {errors: photo_record.errors.full_messages, status: 'FAILURE'}, status: :unprocessable_entity
+                raise ActiveRecord::Rollback, "Error creating photo, #{photo_record.errors.full_messages.join(', ')}"
               end
             end
           end

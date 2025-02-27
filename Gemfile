@@ -65,4 +65,6 @@ gem "versionist", "~> 2.0"
 
 gem "paranoia", "~> 3.0"
 
-gem "rszr", "~> 1.5"
+gem 'mini_magick', '~> 4.11'
+
+# gem "rszr", "~> 1.5"

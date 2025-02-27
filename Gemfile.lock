@@ -211,7 +211,6 @@ GEM
       connection_pool
     reline (0.6.0)
       io-console (~> 0.5)
-    rszr (1.5.0)
     ruby-vips (2.2.2)
       ffi (~> 1.12)
       logger
@@ -257,13 +256,13 @@ DEPENDENCIES
   debug
   image_processing (~> 1.2)
   jwt (~> 2.10)
+  mini_magick (~> 4.11)
   paranoia (~> 3.0)
   pg (~> 1.1)
   puma (>= 5.0)
   rack-attack (~> 6.7)
   rack-cors
   rails (~> 7.2)
-  rszr (~> 1.5)
   shrine (~> 3.6)
   sidekiq (~> 7.3)
   tzinfo-data

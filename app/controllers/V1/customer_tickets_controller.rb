@@ -4,7 +4,6 @@ class V1::CustomerTicketsController < ApplicationController
 
   def create
     begin
-      byebug
       if params[:photos].present? && params[:photos].size > 5
         render json: {data: "Can't have more than 5 attachments", status: "FAILURE"}, status: :unprocessable_entity
         return

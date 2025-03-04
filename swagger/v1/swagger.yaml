@@ -1,0 +1,718 @@
+---
+openapi: 3.0.1
+info:
+  title: API V1
+  version: v1
+security:
+- BearerAuth: []
+paths:
+  "/api/v1/customer_tickets":
+    post:
+      summary: Create a Customer Ticket
+      description: Allows users to create a new customer ticket with photo uploads
+      operationId: createCustomerTicket
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                customer_ticket_type:
+                  type: string
+                category:
+                  type: string
+                  example: Bug Report
+                sub_category:
+                  type: string
+                  example: UI Issue
+                description:
+                  type: string
+                  example: The submit button is not working.
+                album:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      example: My Album Title
+                photos:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '201':
+          description: Customer ticket created successfully
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/CustomerTicket"
+    get:
+      summary: Retrieves all customer tickets
+      tags:
+      - Customer Tickets
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: customer_ticket_type
+        in: query
+        description: Type of the customer ticket
+        schema:
+          type: string
+      - name: from
+        in: query
+        description: Start date for filtering tickets
+        schema:
+          type: string
+      - name: to
+        in: query
+        description: End date for filtering tickets
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: Status of the customer ticket
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: Page number
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        description: Tickets per page
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Customer tickets retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/CustomerTicket"
+                  meta:
+                    type: object
+                    properties:
+                      total_tickets:
+                        type: integer
+                      current_page:
+                        type: integer
+  "/api/v1/categories":
+    get:
+      summary: List Categories
+      tags:
+      - Categories
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: parent_id
+        in: query
+        required: false
+        example: 1
+        description: Parent category ID
+        schema:
+          type: integer
+      - name: ticket_type
+        in: query
+        required: false
+        example: CM
+        description: Category type (CM or RQ)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Categories retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: SUCCESS
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/Category"
+        '422':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Please provide either parent_id or type
+                  status:
+                    type: string
+                    example: FAILED
+    post:
+      summary: Create Category
+      tags:
+      - Categories
+      security:
+      - BearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: Category created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: SUCCESS
+                  data:
+                    "$ref": "#/components/schemas/Category"
+        '422':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid type. It must be CM or RQ.
+                  status:
+                    type: string
+                    example: FAILED
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized Person to access the Resource
+                  status:
+                    type: string
+                    example: UnAuthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Bug Report
+                ticket_type:
+                  type: string
+                  example: CM
+                parent_id:
+                  type: integer
+                  example: 1
+                  nullable: true
+  "/api/v1/categories/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      description: Category ID
+      schema:
+        type: integer
+    get:
+      summary: Retrieve a Category
+      tags:
+      - Categories
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: Category found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: SUCCESS
+                  data:
+                    "$ref": "#/components/schemas/Category"
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Category not found
+                  status:
+                    type: string
+                    example: NOT FOUND
+    put:
+      summary: Update a Category
+      tags:
+      - Categories
+      security:
+      - BearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: Category updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: SUCCESS
+                  data:
+                    "$ref": "#/components/schemas/Category"
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Category not found
+                  status:
+                    type: string
+                    example: NOT FOUND
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized Person to access the Resource
+                  status:
+                    type: string
+                    example: UnAuthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Updated Category
+    delete:
+      summary: Delete a Category
+      tags:
+      - Categories
+      security:
+      - BearerAuth: []
+      responses:
+        '204':
+          description: Category deleted
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Category not found
+                  status:
+                    type: string
+                    example: NOT FOUND
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized Person to access the Resource
+                  status:
+                    type: string
+                    example: UnAuthorized
+  "/api/v1/customer_tickets/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: Customer Ticket ID
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Retrieves a customer ticket
+      tags:
+      - Customer Tickets
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: Customer ticket found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/CustomerTicket"
+                  status:
+                    type: string
+        '404':
+          description: Customer ticket not found
+    put:
+      summary: Updates a customer ticket
+      tags:
+      - Customer Tickets
+      security:
+      - BearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: Customer ticket updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/CustomerTicket"
+                  status:
+                    type: string
+        '422':
+          description: Invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                sub_category:
+                  type: string
+                description:
+                  type: string
+    delete:
+      summary: Deletes a customer ticket
+      tags:
+      - Customer Tickets
+      security:
+      - BearerAuth: []
+      responses:
+        '204':
+          description: Customer ticket deleted successfully
+        '404':
+          description: Customer ticket not found
+  "/api/v1/status":
+    get:
+      summary: Retrieves all statuses
+      tags:
+      - Statuses
+      description: Fetches all available statuses
+      responses:
+        '200':
+          description: Statuses fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                      required:
+                      - id
+                      - name
+                  status:
+                    type: string
+                required:
+                - data
+                - status
+  "/login":
+    post:
+      summary: User Login
+      tags:
+      - Authentication
+      parameters: []
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: your.jwt.token.here
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid Email or Password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: password123
+              required:
+              - email
+              - password
+  "/api/v1/users":
+    get:
+      summary: Retrieves all users
+      tags:
+      - Users
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        description: Page number
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        description: Users per page
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Users list retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/User"
+                  meta:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                      total_users:
+                        type: integer
+                      current_page:
+                        type: integer
+    post:
+      summary: Creates a user
+      tags:
+      - Users
+      security:
+      - BearerAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/User"
+                  status:
+                    type: string
+        '422':
+          description: Invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+              required:
+              - email
+              - password
+              - role
+  "/api/v1/users/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: User ID
+      required: true
+      schema:
+        type: string
+    get:
+      summary: Retrieves a user
+      tags:
+      - Users
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/User"
+                  status:
+                    type: string
+        '404':
+          description: User not found
+    put:
+      summary: Updates a user
+      tags:
+      - Users
+      security:
+      - BearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/User"
+                  status:
+                    type: string
+        '422':
+          description: Invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+    delete:
+      summary: Deletes a user
+      tags:
+      - Users
+      security:
+      - BearerAuth: []
+      responses:
+        '204':
+          description: User deleted successfully
+        '404':
+          description: User not found
+servers:
+- url: http://{defaultHost}
+  variables:
+    defaultHost:
+      default: localhost:3000
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          example: user@example.com
+        role:
+          type: string
+          example: admin
+      required:
+      - id
+      - email
+      - role
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Bug Report
+        ticket_type:
+          type: string
+          example: CM
+        parent_id:
+          type: integer
+          example: 1
+          nullable: true
+    CustomerTicket:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        category:
+          type: string
+          example: Bug Report
+        sub_category:
+          type: string
+          example: UI Issue
+        description:
+          type: string
+          example: The submit button is not working.
+        album:
+          type: object
+          properties:
+            title:
+              type: string
+              example: title
+            photos:
+              type: array
+              items:
+                type: string
+                format: file
+        created_at:
+          type: string
+          format: date-time
+          example: '2024-03-01T12:00:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2024-03-02T14:00:00Z'

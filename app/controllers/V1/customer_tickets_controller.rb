@@ -4,6 +4,7 @@ class V1::CustomerTicketsController < ApplicationController
 
   def create
     begin
+      byebug
       if params[:photos].present? && params[:photos].size > 5
         render json: {data: "Can't have more than 5 attachments", status: "FAILURE"}, status: :unprocessable_entity
         return
@@ -11,11 +12,11 @@ class V1::CustomerTicketsController < ApplicationController
       ActiveRecord::Base.transaction do
         customer_ticket = @current_user.customer_tickets.new(customer_tickets_param)
         customer_ticket.status = 'New'
-        if params[:type].nil? || !["CM","RQ"].include?(params[:type])
+        if params[:customer_ticket_type].nil? || !["CM","RQ"].include?(params[:customer_ticket_type])
           render json: { message: "Invalid type. It must be 'CM' or 'RQ'.", status: "FAILURE" }, status: :unprocessable_entity
           return
         end
-        customer_ticket.set_ticket_number(params[:type])
+        customer_ticket.set_ticket_number(params[:customer_ticket_type])
         unless customer_ticket.save
           render json: {errors: customer_ticket.errors.full_messages, status: 'FAILURE'}, status: :unprocessable_entity
           return
@@ -92,11 +93,11 @@ class V1::CustomerTicketsController < ApplicationController
   private
 
   def customer_tickets_param
-    params.require(:customer_ticket).permit(:category, :sub_category, :description)
+    params.permit(:category, :sub_category, :description)
   end
 
   def albums_param
-    params.require(:album).permit(:title)
+    params.permit(:title)
   end
 
   def customer_ticket_update_params
@@ -104,7 +105,7 @@ class V1::CustomerTicketsController < ApplicationController
   end
 
   def fetch_customer_tickets(role)
-    type = params[:type].present? ? params[:type] : 'All'
+    type = params[:customer_ticket_type].present? ? params[:customer_ticket_type] : 'All'
     customer_tickets = type == 'All' ? CustomerTicket.all : CustomerTicket.where("ticket_number LIKE ?", "%#{type}%")
     if role == 'user'
       customer_tickets = customer_tickets.where(user_id: @current_user.id)

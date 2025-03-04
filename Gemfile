@@ -68,3 +68,11 @@ gem "paranoia", "~> 3.0"
 gem 'mini_magick', '~> 4.11'
 
 # gem "rszr", "~> 1.5"
+
+
+gem "rswag"
+
+group :development, :test do
+  gem "rspec-rails"
+  gem "rswag-specs" 
+end

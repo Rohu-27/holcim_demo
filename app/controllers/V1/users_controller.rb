@@ -70,7 +70,7 @@ class V1::UsersController < ApplicationController
   end
 
    def user_params
-      params.require(:user).permit(:email,:password,:role)
+      params.permit(:email,:password,:role)
    end
 
    def role_check
